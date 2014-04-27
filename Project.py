@@ -38,13 +38,33 @@ class Project(object):
             count += self.packages[packageName].getNumDependencies()
         return count
 
-    def printHighlyCoupledPackages(self):
+    def printProjectStatistics(self):
+        numEdges = 0  # Number of Edges
+        numNodes = 0  # Number of Nodes
+
         sortedPackages = sorted(self.packages, key=lambda packageName: self.packages[packageName].getNumDependencies(), reverse=True)
+
         for packageName in sortedPackages:
             package = self.packages[packageName]
-            print('Package {0} has {1} dependencies.'.format(packageName, package.getNumDependencies()))
+
+            numDependencies = package.getNumDependencies()
+            numEdges += numDependencies
+
+            numModules = package.getNumModules()
+            numNodes += numModules
+
+            print('Package {0} has total of {1} dependencies from a total of {2} modules.'.format(packageName, numDependencies, numModules))
             package.printHighlyCoupledModules()
             print()
+
+        print('Total number of modules (nodes): {0}'.format(numNodes))
+        print('Total number of dependencies (edges): {0}'.format(numEdges))
+
+        edgeToNodeRatio = numEdges / numNodes
+        print('Edge-to-Node ratio: {0}'.format(edgeToNodeRatio))
+
+        treeImpurity = 2 * (numEdges - numNodes + 1) / ((numNodes - 1)*(numNodes - 2))
+        print('Tree impurity: {0}'.format(treeImpurity))
 
     @staticmethod
     def splitPackageAndModuleName(name):

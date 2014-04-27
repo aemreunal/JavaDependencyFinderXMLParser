@@ -20,7 +20,7 @@ def main():
             for attr in range(len(package)):
                 if attr != 0:  # Skip package name attribute
                     createPackage(package[attr], packageName)
-    project.printHighlyCoupledPackages()
+    project.printProjectStatistics()
 
 
 def isIgnored(name):

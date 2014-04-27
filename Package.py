@@ -40,6 +40,9 @@ class Package(object):
             count += self.modules[moduleName].getNumDependencies()
         return count
 
+    def getNumModules(self):
+        return len(self.modules)
+
     def printHighlyCoupledModules(self):
         sortedModules = sorted(self.modules, key=lambda moduleName: self.modules[moduleName].getNumDependencies(), reverse=True)
         for moduleName in sortedModules[:NUM_MODULES_TO_PRINT]:
