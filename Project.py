@@ -16,7 +16,7 @@ class Project(object):
         except KeyError:
             self.packages[package.getName()] = package
 
-    def getPackage(self, packageName):
+    def getOrCreatePackage(self, packageName):
         try:
             return self.packages[packageName]
         except KeyError:
@@ -26,8 +26,8 @@ class Project(object):
 
     def getModule(self, fullName):
         (packageName, moduleName) = self.splitPackageAndModuleName(fullName)
-        package = self.getPackage(packageName)
-        return package.getModule(moduleName)
+        package = self.getOrCreatePackage(packageName)
+        return package.getOrCreateModule(moduleName)
 
     def getPackages(self):
         return self.packages
@@ -44,6 +44,7 @@ class Project(object):
             package = self.packages[packageName]
             print('Package {0} has {1} dependencies.'.format(packageName, package.getNumDependencies()))
             package.printHighlyCoupledModules()
+            print()
 
     @staticmethod
     def splitPackageAndModuleName(name):

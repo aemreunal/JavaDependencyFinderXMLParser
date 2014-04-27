@@ -2,6 +2,8 @@
 
 import Module
 
+NUM_MODULES_TO_PRINT = 3
+
 
 class Package(object):
     # Fields:
@@ -21,7 +23,7 @@ class Package(object):
         except KeyError:
             self.modules[module.getName()] = module
 
-    def getModule(self, moduleName):
+    def getOrCreateModule(self, moduleName):
         try:
             return self.modules[moduleName]
         except KeyError:
@@ -40,5 +42,5 @@ class Package(object):
 
     def printHighlyCoupledModules(self):
         sortedModules = sorted(self.modules, key=lambda moduleName: self.modules[moduleName].getNumDependencies(), reverse=True)
-        for moduleName in sortedModules[:3]:
+        for moduleName in sortedModules[:NUM_MODULES_TO_PRINT]:
             print('\tModule {0} has {1} dependencies.'.format(moduleName, self.modules[moduleName].getNumDependencies()))

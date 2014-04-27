@@ -13,6 +13,16 @@ ignoredPackages = [r'^(java.)', r'^(org.eclipse.)', r'^(javax.)', r'^(org.osgi.)
 filteringPackages = True
 
 
+def main():
+    for package in dependencies:
+        packageName = package[0].text
+        if not isUnwanted(packageName):
+            for attr in range(len(package)):
+                if attr != 0:  # Skip package name attribute
+                    createPackage(package[attr], packageName)
+    project.printHighlyCoupledPackages()
+
+
 def isIgnored(name):
     if not filteringPackages:
         return False
@@ -44,15 +54,12 @@ def processName(name):
 
 
 def createPackage(item, packageName):
-    package = project.getPackage(packageName)
-    # print('Got package with name {0}'.format(package.getName()))
+    package = project.getOrCreatePackage(packageName)
 
     for name in item.findall('name'):
         if not isUnwanted(name.text):
             moduleName = name.text[len(packageName) + 1:]
-
-            module = Module.Module(moduleName)
-            # print('Got module with name {0}'.format(moduleName))
+            module = package.getOrCreateModule(moduleName)
             addDependencyRelations(item, module)
 
 
@@ -74,23 +81,11 @@ def addRelationType(item, module, typ, action):
 
 
 def addInDependency(dependencyName, module):
-    # print('Add dep {0} to module {1}'.format(dependencyName, module.getName()))
     module.addInboundDependency(project.getModule(dependencyName))
 
 
 def addOutDependency(dependencyName, module):
-    # print('Add dep {0} to module {1}'.format(module.getName(), dependencyName))
     project.getModule(dependencyName).addInboundDependency(module)
-
-
-def main():
-    for package in dependencies:
-        packageName = package[0].text
-        if not isUnwanted(packageName):
-            for attr in range(len(package)):
-                if attr != 0:  # Skip package name attribute
-                    createPackage(package[attr], packageName)
-    project.printHighlyCoupledPackages()
 
 
 if __name__ == "__main__":
