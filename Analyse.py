@@ -4,64 +4,94 @@ import xml.etree.ElementTree as ET
 import re
 import Module
 import Package
+import Project
+
+dependencies = ET.parse('Dependencies.xml').getroot()
+project = Project.Project()
 
 ignoredPackages = [r'^(java.)', r'^(org.eclipse.)', r'^(javax.)', r'^(org.osgi.)']
 filteringPackages = True
 
+
 def isIgnored(name):
-    for rgx in ignoredPackages:
-        if re.search(rgx, name):
-            return True
-    return False
+    if not filteringPackages:
+        return False
+    else:
+        for rgx in ignoredPackages:
+            if re.search(rgx, name):
+                return True
+        return False
+
 
 def isUnwanted(text):
-    if filteringPackages:
-        return text.find('$') != -1 or isIgnored(text)
-    else:
-        return text.find('$') != -1
+    return text.find('$') != -1 or isIgnored(text)
+
 
 def printName(name):
     if not isUnwanted(name):
         print(name)
 
+
 def processName(name):
-    paran = name.find('(')
-    if paran != -1:
-        # If there is a paranthesis
-        name = name[:paran]
+    parenthesisLocation = name.find('(')
+    if parenthesisLocation != -1:
+        # If there is a parenthesis
+        name = name[:parenthesisLocation]
     if not isIgnored(name):
         return name[:name.rindex('.')]
     else:
         return name
 
-def printClassDependencies(item, packageName, level):
+
+def createPackage(item, packageName):
+    package = project.getPackage(packageName)
+    # print('Got package with name {0}'.format(package.getName()))
+
     for name in item.findall('name'):
         if not isUnwanted(name.text):
-            printName('%s\tClass: %s' % (3 * level * '\t', name.text[len(packageName) + 1:])) # Print class name - packageName + '.'
+            moduleName = name.text[len(packageName) + 1:]
 
-            printInOutDependencies(item, level)
-
-def printInOutDependencies(item, level):
-    print('%s\t\tInbound dependencies:' % (3 * level * '\t'))
-    for inDepend in item.findall('inbound'):
-        if not isUnwanted(inDepend.text):
-            typ = inDepend.get('type')
-            printName('%s\t\t\t-%s: %s' % (3 * level * '\t', typ, processName(inDepend.text))) # Print inbound dependency name
-
-    print('%s\t\tOutbound dependencies:' % (3 * level * '\t'))
-    for outDepend in item.findall('outbound'):
-        if not isUnwanted(outDepend.text):
-            typ = outDepend.get('type')
-            printName('%s\t\t\t-%s: %s' % (3 * level * '\t', typ, processName(outDepend.text))) # Print outbound dependency name
+            module = Module.Module(moduleName)
+            # print('Got module with name {0}'.format(moduleName))
+            addDependencyRelations(item, module)
 
 
-tree = ET.parse('Dependencies.xml')
-dependencies = tree.getroot()
+def addDependencyRelations(item, module):
+    # Inbound dependencies
+    addRelationType(item, module, 'inbound', addInDependency)
 
-for package in dependencies:
-    for attr in range(len(package)):
-        if not isUnwanted(package[0].text):
-            if(attr == 0): # Print package name
-                printName('Package: %s' % package[attr].text)
-            else:
-                printClassDependencies(package[attr], package[0].text, 0)
+    # Outbound dependencies
+    addRelationType(item, module, 'outbound', addOutDependency)
+
+
+def addRelationType(item, module, typ, action):
+    for dependency in item.findall(typ):
+        if not isUnwanted(dependency.text):
+            dependencyName = dependency.text
+            if dependency.get('type') != 'class':
+                dependencyName = processName(dependencyName)
+            action(dependencyName, module)
+
+
+def addInDependency(dependencyName, module):
+    # print('Add dep {0} to module {1}'.format(dependencyName, module.getName()))
+    module.addInboundDependency(project.getModule(dependencyName))
+
+
+def addOutDependency(dependencyName, module):
+    # print('Add dep {0} to module {1}'.format(module.getName(), dependencyName))
+    project.getModule(dependencyName).addInboundDependency(module)
+
+
+def main():
+    for package in dependencies:
+        packageName = package[0].text
+        if not isUnwanted(packageName):
+            for attr in range(len(package)):
+                if attr != 0:  # Skip package name attribute
+                    createPackage(package[attr], packageName)
+    project.printHighlyCoupledPackages()
+
+
+if __name__ == "__main__":
+    main()

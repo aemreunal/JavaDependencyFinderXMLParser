@@ -7,4 +7,6 @@ untitled.py
 
 *.pdf
 
+.idea
+
 Dependencies.xml

@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+import Module
+
+
 class Package(object):
     # Fields:
     # - name
@@ -30,7 +33,12 @@ class Package(object):
         return self.modules
 
     def getNumDependencies(self):
-        count = 0;
+        count = 0
         for moduleName in self.modules:
             count += self.modules[moduleName].getNumDependencies()
         return count
+
+    def printHighlyCoupledModules(self):
+        sortedModules = sorted(self.modules, key=lambda moduleName: self.modules[moduleName].getNumDependencies(), reverse=True)
+        for moduleName in sortedModules[:3]:
+            print('\tModule {0} has {1} dependencies.'.format(moduleName, self.modules[moduleName].getNumDependencies()))
