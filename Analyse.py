@@ -9,7 +9,7 @@ import Project
 dependencies = ET.parse('Dependencies.xml').getroot()
 project = Project.Project()
 
-ignoredPackages = [r'^(java.)', r'^(org.eclipse.)', r'^(javax.)', r'^(org.osgi.)']
+ignoredPackages = [r'^(java.)', r'^(org.eclipse.)', r'^(javax.)', r'^(org.osgi.)', r'^(org.lwjgl.)']
 filteringPackages = True
 
 
@@ -34,7 +34,13 @@ def isIgnored(name):
 
 
 def isUnwanted(text):
-    return text.find('$') != -1 or isIgnored(text)
+    try:
+        return text.find('$') != -1 or isIgnored(text)
+    except AttributeError:
+        try:
+            return isIgnored(text)
+        except TypeError:
+            return True
 
 
 def printName(name):

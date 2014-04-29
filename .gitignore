@@ -1,6 +1,8 @@
 
 untitled.py
 
+*.xml
+
 *.pyc
 
 *.bak
@@ -10,3 +12,5 @@ untitled.py
 .idea
 
 Dependencies.xml
+
+sdsdsds.xml
