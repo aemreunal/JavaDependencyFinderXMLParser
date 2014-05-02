@@ -5,6 +5,13 @@ import re
 import Module
 import Package
 
+#
+# This code belongs to:
+# Ahmet Emre Unal
+# S001974
+# emre.unal@ozu.edu.tr
+#
+
 ignoredPackages = [r'^(java.)', r'^(org.eclipse.)', r'^(javax.)', r'^(org.osgi.)']
 filteringPackages = True
 

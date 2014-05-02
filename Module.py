@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+#
+# This code belongs to:
+# Ahmet Emre Unal
+# S001974
+# emre.unal@ozu.edu.tr
+#
 
 class Module(object):
     # Fields:

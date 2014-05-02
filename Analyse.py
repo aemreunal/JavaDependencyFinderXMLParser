@@ -6,6 +6,13 @@ import Module
 import Package
 import Project
 
+#
+# This code belongs to:
+# Ahmet Emre Unal
+# S001974
+# emre.unal@ozu.edu.tr
+#
+
 dependencies = ET.parse('Dependencies.xml').getroot()
 project = Project.Project()
 

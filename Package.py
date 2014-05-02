@@ -2,6 +2,13 @@
 
 import Module
 
+#
+# This code belongs to:
+# Ahmet Emre Unal
+# S001974
+# emre.unal@ozu.edu.tr
+#
+
 NUM_MODULES_TO_PRINT = 3
 
 
